@@ -1,32 +1,45 @@
-# Prerequisites
-*.d
+# Sistema Operativo y Herramientas
+.DS_Store
+Thumbs.db
+desktop.ini
+._*
+.Trashes
+.direnv/
+layout_python/
 
-# Compiled Object files
+# Directorios de Build y artefactos de C/C++
+build/
+bin/
+dist/
+*.d
 *.slo
 *.lo
 *.o
 *.obj
-
-# Precompiled Headers
 *.gch
 *.pch
-
-# Compiled Dynamic libraries
 *.so
 *.dylib
 *.dll
-
-# Fortran module files
 *.mod
 *.smod
-
-# Compiled Static libraries
 *.lai
 *.la
 *.a
 *.lib
-
-# Executables
 *.exe
 *.out
 *.app
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+*.venv
+*.egg-info/
+*.egg
+.pytest_cache/
+.coverage
