@@ -1,9 +1,8 @@
 class Particle {
-private:
-  double mass;
-  double initial_position;
-  double initial_velocity;
-
 public:
+  double m;
+  double x0;
+  double v0;
+
   Particle(double, double, double);
 };
