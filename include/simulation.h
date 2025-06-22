@@ -16,4 +16,6 @@ public:
   bool collision(Particle, Particle);
   /* Calcula el tiempo de colisión entre dos partículas */
   double collision_time(Particle, Particle);
+
+  double collision_position(Particle a, Particle b);
 };
