@@ -16,12 +16,12 @@ TEST_CASE("Collision_time Example", "[Example][Time]") {
   REQUIRE(s.collision_time(a, b) == 1.25);
 }
 
-// TEST_CASE("Collision_position Example", "[Example][Position]") {
-//   auto s = Simulation(0.2, 9.81);
-//   auto a = Particle(2, 0, 5);
-//   auto b = Particle(1, 10, -3);
-//   REQUIRE(s.collision_position(a, b) == 4.717);
-// }
+TEST_CASE("Collision_position Example", "[Example][Position]") {
+  auto s = Simulation(0.2, 9.81);
+  auto a = Particle(2, 0, 5);
+  auto b = Particle(1, 10, -3);
+  REQUIRE(s.collision_position(a, b) == 4.717);
+}
 
 // TEST_CASE("Velocity_before_collision Example", "[Example][Velocity]") {
 //   auto s = Simulation(0.2, 9.81);
