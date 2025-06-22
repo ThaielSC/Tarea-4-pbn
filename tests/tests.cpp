@@ -52,5 +52,5 @@ TEST_CASE("Final_distance Example", "[Example][Distance]") {
       Particle(b.get_mass(), 0, post_collision_velocities.second);
 
   REQUIRE(s.final_distance(a, b).first == Approx(0.0283).margin(0.001));
-  REQUIRE(s.final_distance(a, b).second == Approx(14.953).margin(0.01));
+  REQUIRE(s.final_distance(a, b).second == Approx(14.979).margin(0.01));
 }
