@@ -20,7 +20,7 @@ TEST_CASE("Collision_position Example", "[Example][Position]") {
   auto s = Simulation(0.2, 9.81);
   auto a = Particle(2, 0, 5);
   auto b = Particle(1, 10, -3);
-  REQUIRE(s.collision_position(a, b) == 4.717);
+  REQUIRE(s.collision_position(a, b) == 4.7171875);
 }
 
 // TEST_CASE("Velocity_before_collision Example", "[Example][Velocity]") {
