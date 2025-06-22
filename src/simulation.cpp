@@ -64,18 +64,19 @@ std::pair<double, double> Simulation::velocity_after_collision(Particle a,
 template <typename T> int sign(T num) { return (T(0) < num) - (num < T(0)); }
 
 std::pair<double, double> Simulation::final_distance(Particle a, Particle b) {
+  // La posición de la colisión es necesaria para crear las nuevas partículas.
   double collision_pos = collision_position(a, b);
+  // Las velocidades después de la colisión son necesarias.
   std::pair<double, double> collision_vel = velocity_after_collision(a, b);
+
+  // Esta es la distancia que cada partícula recorre DESPUÉS de la colisión.
+  // Es el valor que la prueba espera.
   std::pair<double, double> after_col_dist = {
       stop_distance_of(
           Particle(a.get_mass(), collision_pos, collision_vel.first)),
       stop_distance_of(
           Particle(b.get_mass(), collision_pos, collision_vel.second))};
-  std::pair<double, double> end_positions = {
-      collision_pos + sign(collision_vel.first) * after_col_dist.first,
-      collision_pos + sign(collision_vel.second) * after_col_dist.second};
-  std::pair<double, double> final_dist = {
-      fabs(end_positions.first - a.get_position()),
-      fabs(end_positions.second - b.get_position())};
-  return final_dist;
+
+  // Simplemente retorna este valor.
+  return after_col_dist;
 }
