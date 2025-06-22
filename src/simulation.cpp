@@ -42,6 +42,6 @@ bool Simulation::collision(Particle a, Particle b) {
 
 double Simulation::collision_position(Particle a, Particle b) {
   double timec = collision_time(a, b);
-  return a.get_position() + (a.get_position() * timec) -
+  return a.get_position() + (a.get_velocity() * timec) -
          (mu * g * pow(timec, 2)) / 2;
 }
