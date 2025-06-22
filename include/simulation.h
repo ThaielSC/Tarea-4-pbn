@@ -1,5 +1,6 @@
 #pragma once
 #include "particle.h"
+#include <utility>
 
 class Simulation {
 private:
@@ -18,4 +19,8 @@ public:
   double collision_time(Particle, Particle);
 
   double collision_position(Particle a, Particle b);
+
+  std::pair<double, double> velocity_after_collision(Particle a, Particle b);
+
+  std::pair<double, double> final_distance(Particle a, Particle b);
 };
