@@ -1,8 +1,13 @@
+#pragma once
 class Particle {
 public:
-  double m;
-  double x0;
-  double v0;
+  Particle(double mass, double init_pos, double init_vel);
+  double get_mass();
+  double get_position();
+  double get_velocity();
 
-  Particle(double, double, double);
+private:
+  double _mass;
+  double _position;
+  double _velocity;
 };
