@@ -46,7 +46,10 @@ Se consideran dos esferas que se mueven en línea recta con fricción cinética.
     $$x_c = x_{A0} + v_{A0}t_c - \frac{1}{2}\mu_k g t_c^2$$
 
 * **Velocidades después del choque:** Sea $m_A$ y $m_B$ la masa de las esferas A y B. Luego del choque elástico, las velocidades finales $v'_A$ y $v'_B$ se obtienen con:
-    $$v'_A = \frac{m_A - m_B}{m_A + m_B}v_{A0} + \frac{2m_B}{m_A + m_B}v_{B0} , \quad v'_B = \frac{2m_A}{m_A + m_B}v_{A0} + \frac{m_B - m_A}{m_A + m_B}v_{B0}$$
+$$
+v'_A = \frac{m_A - m_B}{m_A + m_B}v_{A0} + \frac{2m_B}{m_A + m_B}v_{B0}
+, \quad v'_B = \frac{2m_A}{m_A + m_B}v_{A0} + \frac{m_B - m_A}{m_A + m_B}v_{B0}
+$$
 
 * **Distancia recorrida post-colisión:** Finalmente, considerando que si una esfera queda con velocidad $v'$ después del choque, su distancia final antes de detenerse se calcula tal que:
     $$d = \frac{(v')^2}{2\mu_k g}$$
