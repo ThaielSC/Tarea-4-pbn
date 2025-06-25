@@ -44,13 +44,6 @@ TEST_CASE("Final_distance Example", "[Example][Distance]") {
   auto a = Particle(2, 0, 5);
   auto b = Particle(1, 10, -3);
 
-  auto post_collision_velocities = s.velocity_after_collision(a, b);
-
-  auto a_after_collision =
-      Particle(a.get_mass(), 0, post_collision_velocities.first);
-  auto b_after_collision =
-      Particle(b.get_mass(), 0, post_collision_velocities.second);
-
   REQUIRE(s.final_distance(a, b).first == Approx(0.0283).margin(0.001));
   REQUIRE(s.final_distance(a, b).second == Approx(14.979).margin(0.01));
 }
