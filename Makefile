@@ -1,73 +1,93 @@
-# --- Compilador y Flags ---
-CXX = g++
+# -------------------------------
+# 🔧 Configuración general
+# -------------------------------
 
-PYTHON_INCLUDES := -I/opt/homebrew/opt/python@3.13/Frameworks/Python.framework/Versions/3.13/include/python3.13 -Iextern/pybind11/include
-PYTHON_LDFLAGS  := -L/opt/homebrew/opt/python@3.13/Frameworks/Python.framework/Versions/3.13/lib -lpython3.13
+CXX             ?= g++
+PYTHON_VERSION  ?= 3.13
+PYTHON          ?= $(shell which python3 2>/dev/null || which python 2>/dev/null)
 
-CXXFLAGS = -Wall -std=c++14 -fPIC -Iinclude -MMD -MP $(PYTHON_INCLUDES)
-SO_LDFLAGS = -shared $(PYTHON_LDFLAGS)
-LDFLAGS = $(PYTHON_LDFLAGS)
+# Rutas obtenidas desde Python
+PYTHON_INCLUDES := $(shell python3-config --cflags)
+PYTHON_LDFLAGS  := $(shell $(PYTHON) -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")/lib$(PYTHON_VERSION).so
+PYBIND11_INCLUDE := extern/pybind11/include
 
-# --- Directorios ---
-SRC_DIR = src
-TEST_DIR = tests
-BUILD_DIR = build
+# Flags de compilación
+CXXFLAGS   = -Wall -std=c++14 -fPIC -Iinclude -MMD -MP \
+             $(PYTHON_INCLUDES) -I$(PYBIND11_INCLUDE)
+SO_LDFLAGS = -shared -L$(dir $(PYTHON_LDFLAGS)) -lpython$(PYTHON_VERSION)
+LDFLAGS    = $(SO_LDFLAGS)
 
-# --- Archivos ---
-TARGET = colisionlib/colisiona.so
-TEST_EXEC = $(BUILD_DIR)/run_tests
+# -------------------------------
+# 📁 Directorios y nombres
+# -------------------------------
 
-# --- Fuente por grupo ---
-SRC_SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
-TEST_SRCS := $(shell find $(TEST_DIR) -name '*.cpp')
-ALL_SRCS := $(SRC_SRCS) $(TEST_SRCS)
+SRC_DIR    = src
+TEST_DIR   = tests
+BUILD_DIR  = build
+PKG_DIR    = colisionlib
+LIB_NAME   = colisiones
+TARGET     = $(PKG_DIR)/$(LIB_NAME).so
+TEST_EXEC  = $(BUILD_DIR)/run_tests
 
-# Objetos correspondientes
-SRC_OBJS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRC_SRCS))
-TEST_OBJS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(TEST_SRCS))
-ALL_OBJS := $(SRC_OBJS) $(TEST_OBJS)
+# -------------------------------
+# 🧱 Archivos fuente
+# -------------------------------
 
-# Dependencias
-DEPS := $(ALL_OBJS:.o=.d)
+SRC_SRCS   := $(shell find $(SRC_DIR) -name '*.cpp')
+TEST_SRCS  := $(shell find $(TEST_DIR) -name '*.cpp')
+ALL_SRCS   := $(SRC_SRCS) $(TEST_SRCS)
 
-# --- Reglas ---
+SRC_OBJS   := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRC_SRCS))
+TEST_OBJS  := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(TEST_SRCS))
+ALL_OBJS   := $(SRC_OBJS) $(TEST_OBJS)
 
-all: $(TARGET) stub
+DEPS       := $(ALL_OBJS:.o=.d)
 
-# Biblioteca compartida usando solo código fuente del núcleo
+# -------------------------------
+# 📦 Reglas principales
+# -------------------------------
+
+all: $(TARGET) stub ptest
+
+# 🔗 Compilar la librería compartida
 $(TARGET): $(SRC_OBJS)
 	@mkdir -p $(dir $@)
-	@echo "Enlazando $(TARGET)..."
-	$(CXX) $(SO_LDFLAGS) -o $@ $^
+	@echo "🔧 Enlazando $@..."
+	@$(CXX) $(SO_LDFLAGS) -o $@ $^
 
-# Ejecutable de pruebas usando código fuente del núcleo + pruebas
+# 🧪 Compilar el ejecutable de pruebas
 $(TEST_EXEC): $(ALL_OBJS)
-	@echo "Enlazando $(TEST_EXEC)..."
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+	@echo "🔧 Enlazando $@..."
+	@$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
-# Compilar cualquier .cpp a .o en build/
+# 🛠️ Compilar archivos .cpp en objetos .o
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
-	@echo "Compilando $<..."
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	@echo "🛠️  Compilando $<..."
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Ejecutar pruebas
-test: $(TEST_EXEC)
-	@echo "--- Ejecutando Pruebas ---"
-	./$(TEST_EXEC)
+# 🧪 Ejecutar pruebas
+ctest: $(TEST_EXEC)
+	@echo "--- 🧪 Ejecutando Pruebas ---"
+	@./$(TEST_EXEC)
 
-# Limpiar
+ptest:
+	PYTHONPATH=colisionlib python test.py
+
+# 🧹 Limpiar todo
 clean:
-	@echo "Limpiando..."
-	rm -rf $(BUILD_DIR) $(TARGET)
+	@echo "🧹 Limpiando..."
+	@rm -rf $(BUILD_DIR) $(TARGET) $(PKG_DIR)
+
+# 🧾 Generar stub de pybind11
+stub:
+	@if ! command -v pybind11-stubgen >/dev/null 2>&1; then \
+		echo "⚠️  pybind11-stubgen no está instalado. Ejecuta 'pip install pybind11-stubgen' si quieres los stubs."; \
+	else \
+		echo "🧾 Generando stubs de pybind11..."; \
+		PYTHONPATH=$(CURDIR)/$(PKG_DIR) pybind11-stubgen $(LIB_NAME) -o ./$(PKG_DIR); \
+	fi
 
 -include $(DEPS)
 
-PYTHONPATH := $(CURDIR)/colisionlib
-
-stub:
-	PYTHONPATH=$(PYTHONPATH)
-	pybind11-stubgen colisiona -o ./colisionlib
-
-.PHONY: all clean test stub
-
+.PHONY: all clean ctest stub ptest

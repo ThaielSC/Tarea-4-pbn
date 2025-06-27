@@ -1,4 +1,4 @@
-from colisiona import *
+from colisiones import *
 s = Simulador(0.2, 9.81)
 a = Esfera(2, 0, 6)
 b = Esfera(1, 8, -3)

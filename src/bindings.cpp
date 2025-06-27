@@ -5,7 +5,7 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(colisiona, m) {
+PYBIND11_MODULE(colisiones, m) {
   m.doc() =
       "Bindings de Python para la simulación de colisiones 1D con fricción.";
 
