@@ -1,6 +1,6 @@
 #include <utility>
 #define CATCH_CONFIG_MAIN
-#include "../include/simulation.h"
+#include "../include/simulation.hpp"
 #include "catch.hpp"
 
 TEST_CASE("Collision Example", "[Example][Collision]") {

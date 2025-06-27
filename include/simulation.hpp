@@ -1,5 +1,5 @@
 #pragma once
-#include "particle.h"
+#include "particle.hpp"
 #include <utility>
 
 class Simulation {

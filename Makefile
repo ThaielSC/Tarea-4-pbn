@@ -1,60 +1,73 @@
-# Makefile para compilar un proyecto de C++ con una estructura de directorios anidados.
-#
-# Uso:
-#   make          - Compila el ejecutable de pruebas en el directorio build/.
-#   make test     - Compila y ejecuta las pruebas.
-#   make clean    - Limpia todos los archivos generados.
-# -----------------------------------------------------------------------------
-
 # --- Compilador y Flags ---
 CXX = g++
 
-CXXFLAGS = -std=c++11 -Wall -Wextra -Wundef -Wuninitialized -Winit-self -g -O0 \
-           -Iinclude -MMD -MP
+PYTHON_INCLUDES := -I/opt/homebrew/opt/python@3.13/Frameworks/Python.framework/Versions/3.13/include/python3.13 -Iextern/pybind11/include
+PYTHON_LDFLAGS  := -L/opt/homebrew/opt/python@3.13/Frameworks/Python.framework/Versions/3.13/lib -lpython3.13
 
-# --- Directorios del Proyecto ---
+CXXFLAGS = -Wall -std=c++14 -fPIC -Iinclude -MMD -MP $(PYTHON_INCLUDES)
+SO_LDFLAGS = -shared $(PYTHON_LDFLAGS)
+LDFLAGS = $(PYTHON_LDFLAGS)
+
+# --- Directorios ---
 SRC_DIR = src
 TEST_DIR = tests
 BUILD_DIR = build
 
-# --- Archivos del Proyecto ---
+# --- Archivos ---
+TARGET = colisionlib/colisiona.so
 TEST_EXEC = $(BUILD_DIR)/run_tests
 
-# Encuentra recursivamente todos los archivos .cpp en los directorios de fuente y tests.
-# Usamos 'find' en lugar de 'wildcard' para la búsqueda recursiva.
-SRCS := $(shell find $(SRC_DIR) -name '*.cpp') $(shell find $(TEST_DIR) -name '*.cpp')
+# --- Fuente por grupo ---
+SRC_SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
+TEST_SRCS := $(shell find $(TEST_DIR) -name '*.cpp')
+ALL_SRCS := $(SRC_SRCS) $(TEST_SRCS)
 
-# Genera los nombres de los archivos objeto (.o) en el directorio build/,
-# manteniendo la estructura de subdirectorios.
-# Ejemplo: src/composites/ObjectA.cpp -> build/composites/ObjectA.o
-OBJS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRCS))
+# Objetos correspondientes
+SRC_OBJS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRC_SRCS))
+TEST_OBJS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(TEST_SRCS))
+ALL_OBJS := $(SRC_OBJS) $(TEST_OBJS)
 
-# Genera los nombres de los archivos de dependencia (.d)
-DEPS := $(OBJS:.o=.d)
+# Dependencias
+DEPS := $(ALL_OBJS:.o=.d)
 
-# --- Reglas del Makefile ---
+# --- Reglas ---
 
-all: $(TEST_EXEC)
+all: $(TARGET) stub
 
-$(TEST_EXEC): $(OBJS)
-	@echo "Enlazando para crear el ejecutable..."
-	$(CXX) $(CXXFLAGS) -o $@ $^
+# Biblioteca compartida usando solo código fuente del núcleo
+$(TARGET): $(SRC_OBJS)
+	@mkdir -p $(dir $@)
+	@echo "Enlazando $(TARGET)..."
+	$(CXX) $(SO_LDFLAGS) -o $@ $^
 
-# Regla patrón genérica para compilar cualquier .cpp en un .o dentro de build/.
-# Esta única regla ahora maneja tanto los archivos de src/ como los de tests/.
+# Ejecutable de pruebas usando código fuente del núcleo + pruebas
+$(TEST_EXEC): $(ALL_OBJS)
+	@echo "Enlazando $(TEST_EXEC)..."
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Compilar cualquier .cpp a .o en build/
 $(BUILD_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
 	@echo "Compilando $<..."
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+# Ejecutar pruebas
 test: $(TEST_EXEC)
 	@echo "--- Ejecutando Pruebas ---"
 	./$(TEST_EXEC)
 
+# Limpiar
 clean:
-	@echo "Limpiando directorio de build..."
-	rm -rf $(BUILD_DIR)
+	@echo "Limpiando..."
+	rm -rf $(BUILD_DIR) $(TARGET)
 
 -include $(DEPS)
 
-.PHONY: all clean test
+PYTHONPATH := $(CURDIR)/colisionlib
+
+stub:
+	PYTHONPATH=$(PYTHONPATH)
+	pybind11-stubgen colisiona -o ./colisionlib
+
+.PHONY: all clean test stub
+

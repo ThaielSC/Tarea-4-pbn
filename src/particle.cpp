@@ -1,4 +1,4 @@
-#include "../include/particle.h"
+#include "../include/particle.hpp"
 
 Particle::Particle(double mass, double init_pos, double init_vel)
     : _mass(mass), _position(init_pos), _velocity(init_vel) {}

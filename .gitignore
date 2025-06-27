@@ -9,6 +9,7 @@ layout_python/
 
 # Directorios de Build y artefactos de C/C++
 build/
+colisionlib/
 bin/
 dist/
 *.d
@@ -36,6 +37,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.pyi
 venv/
 env/
 *.venv
