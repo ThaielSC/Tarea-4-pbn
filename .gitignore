@@ -43,3 +43,8 @@ env/
 *.egg
 .pytest_cache/
 .coverage
+
+# Helix-config
+.helix/
+compile_flags.txt
+.ignore
